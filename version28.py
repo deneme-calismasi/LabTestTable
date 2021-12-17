@@ -177,7 +177,7 @@ class ModBus:
         self.tree.bind("<B1-Motion>", self.drag_motion)
 
         self.update_window_table()
-        self.tree.after(60000, self.update_window_table)
+        self.tree.after(120000, self.update_window_table)
 
     def update_window_table(self):
 
@@ -205,17 +205,26 @@ class ModBus:
 
         root.update()
         root.update_idletasks()
-        self.tree.after(10000, self.update_window_table)
+        self.tree.after(120000, self.update_window_table)
 
 
 def main():
     window_unit()
-    app4 = ModBus(7, 110, 1, 16)
+    app1 = ModBus(1, 400, 9, 14)
+    app1.connect_modbus()
+    app1.table_insert(50, 10)
+    app2 = ModBus(2, 400, 9, 14)
+    app2.connect_modbus()
+    app2.table_insert(50, 250)
+    app3 = ModBus(3, 400, 9, 14)
+    app3.connect_modbus()
+    app3.table_insert(50, 490)
+    app4 = ModBus(7, 110, 7, 12)
     app4.connect_modbus()
-    app4.table_insert(50, 490)
-    app5 = ModBus(8, 110, 1, 16)
+    app4.table_insert(450, 10)
+    app5 = ModBus(8, 110, 7, 12)
     app5.connect_modbus()
-    app5.table_insert(50, 490)
+    app5.table_insert(450, 250)
     mainloop()
 
 

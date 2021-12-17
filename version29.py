@@ -38,6 +38,7 @@ class ModBus:
         return [elm for elm in self.style.map("Treeview", query_opt=option) if elm[:2] != ("!disabled", "!selected")]
 
     def connect_modbus(self):
+        print("---------------------------------------")
         for i in self.reg_list:
             groupNo = math.floor(((self.lineNo - 1) / 256)) + 1
             self.portNo = 10000 + (self.sensorTypeNo - 1) * 10 + groupNo - 1
@@ -64,9 +65,13 @@ class ModBus:
         print("REG_LIST", self.reg_list)
         self.data_as_float = self.resultList
         print("Result_Temp", self.resultList)
+        print("??????????????????????????????????????????????")
+        self.regNoList = []
+        self.resultList = []
         return self.data_as_float
 
     def list_to_dict(self):
+        self.connect_modbus()
         self.regs_count = len(self.reg_list)
 
         value = [[num for num in range(1, 1 + self.regs_count)], self.reg_list, self.data_as_float]
@@ -177,7 +182,7 @@ class ModBus:
         self.tree.bind("<B1-Motion>", self.drag_motion)
 
         self.update_window_table()
-        self.tree.after(60000, self.update_window_table)
+        self.tree.after(20000, self.update_window_table)
 
     def update_window_table(self):
 
@@ -205,17 +210,26 @@ class ModBus:
 
         root.update()
         root.update_idletasks()
-        self.tree.after(10000, self.update_window_table)
+        self.tree.after(20000, self.update_window_table)
 
 
 def main():
     window_unit()
-    app4 = ModBus(7, 110, 1, 16)
+    app1 = ModBus(1, 400, 5, 16)
+    app1.connect_modbus()
+    app1.table_insert(50, 10)
+    app2 = ModBus(2, 400, 5, 16)
+    app2.connect_modbus()
+    app2.table_insert(50, 250)
+    app3 = ModBus(3, 400, 5, 16)
+    app3.connect_modbus()
+    app3.table_insert(50, 490)
+    app4 = ModBus(7, 110, 5, 16)
     app4.connect_modbus()
-    app4.table_insert(50, 490)
-    app5 = ModBus(8, 110, 1, 16)
+    app4.table_insert(450, 10)
+    app5 = ModBus(8, 110, 5, 16)
     app5.connect_modbus()
-    app5.table_insert(50, 490)
+    app5.table_insert(450, 250)
     mainloop()
 
 

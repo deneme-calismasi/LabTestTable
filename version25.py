@@ -33,6 +33,7 @@ class ModBus:
         self.reg_list = list(range(self.sensor_min_num, self.sensor_max_num + 1))
         self.style = ttk.Style()
         self.style.map("Treeview", foreground=self.fixed_map("foreground"), background=self.fixed_map("background"))
+        self.canvas = tk.Canvas(root, width=1580, height=600)
 
     def fixed_map(self, option):
         return [elm for elm in self.style.map("Treeview", query_opt=option) if elm[:2] != ("!disabled", "!selected")]
@@ -205,17 +206,20 @@ class ModBus:
 
         root.update()
         root.update_idletasks()
-        self.tree.after(10000, self.update_window_table)
+        self.tree.after(60000, self.update_window_table)
 
 
 def main():
     window_unit()
-    app4 = ModBus(7, 110, 1, 16)
-    app4.connect_modbus()
-    app4.table_insert(50, 490)
-    app5 = ModBus(8, 110, 1, 16)
-    app5.connect_modbus()
-    app5.table_insert(50, 490)
+    app1 = ModBus(1, 2, 400, 425)
+    app1.connect_modbus()
+    app1.table_insert(50, 10)
+    app2 = ModBus(2, 2, 400, 425)
+    app2.connect_modbus()
+    app2.table_insert(50, 250)
+    app3 = ModBus(3, 2, 400, 425)
+    app3.connect_modbus()
+    app3.table_insert(50, 490)
     mainloop()
 
 
