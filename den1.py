@@ -6,14 +6,48 @@ from tkinter import ttk
 from tkinter import *
 import pymongo
 import datetime as dt
+import time
+import numpy
 
 root = tk.Tk()
 
 
 def window_unit():
     root.title("Sensor's Temperatures °C")
-    root.geometry("800x600")
+    root.geometry("850x650")
     root.grid()
+
+
+class EaeSens:
+    L1 = 0
+    L2 = 0
+    L3 = 0
+    EXT = 0
+    OUT = 0
+    line_no = 0
+    sens_no = 0
+
+    def __init__(self, L1, L2, L3, EXT, OUT, line_no, sens_no):
+        self.L1 = L1
+        self.L2 = L2
+        self.L3 = L3
+        self.EXT = EXT
+        self.OUT = OUT
+        self.line_no = line_no
+        self.sens_no = sens_no
+
+
+# obj1 = EaeSens(3, 3, 3)
+
+sensArray = numpy.ndarray((32,), dtype=EaeSens)
+
+for i in range(0, 16):
+    sensArray[i] = EaeSens(0.0, 0.0, 0.0, 0, 0, 110, i + 1)
+
+for a in range(16, 32):
+    sensArray[a] = EaeSens(0.0, 0.0, 0.0, 0, 0, 400, a + 1)
+
+print(sensArray[1].line_no)
 
 
 class ModBus:
@@ -29,6 +63,7 @@ class ModBus:
         self.lineNo = lineNo
         self.sensorTypeNo = sensorTypeNo
         self.resultList = []
+        self.finalResultList = []
         self.regNoList = []
         self.reg_list = list(range(self.sensor_min_num, self.sensor_max_num + 1))
         self.style = ttk.Style()
@@ -66,6 +101,7 @@ class ModBus:
         self.data_as_float = self.resultList
         print("Result_Temp", self.resultList)
         print("??????????????????????????????????????????????")
+        self.finalResultList = self.resultList
         self.regNoList = []
         self.resultList = []
         return self.data_as_float
@@ -166,6 +202,7 @@ class ModBus:
             sensor_id = record[2]
             temperature = record[3]
             date_time = record[4]
+
             if float(temperature) > 30.0:
                 self.tree.insert("", index='end', text="%s" % int(sensor_id), iid=start_range,
                                  values=(str(self.head_text), str(date_time), int(sensor_id), float(temperature)),
@@ -196,10 +233,12 @@ class ModBus:
             sensor_id = record[2]
             temperature = record[3]
             date_time = record[4]
+
             if float(temperature) > 30.0:
                 self.tree.insert("", index='end', text="%s" % int(sensor_id), iid=start_range,
                                  values=(str(self.head_text), str(date_time), int(sensor_id), float(temperature)),
                                  tags=('high',))
+
             else:
                 self.tree.insert("", index='end', text="%s" % int(sensor_id), iid=start_range,
                                  values=(str(self.head_text), str(date_time), int(sensor_id), float(temperature)),
@@ -217,19 +256,117 @@ def main():
     window_unit()
     app1 = ModBus(1, 400, 1, 16)
     app1.connect_modbus()
-    app1.table_insert(50, 10)
     app2 = ModBus(2, 400, 1, 16)
     app2.connect_modbus()
-    app2.table_insert(50, 250)
     app3 = ModBus(3, 400, 1, 16)
     app3.connect_modbus()
-    app3.table_insert(50, 490)
     app4 = ModBus(7, 110, 1, 16)
     app4.connect_modbus()
-    app4.table_insert(450, 10)
     app5 = ModBus(8, 110, 1, 16)
     app5.connect_modbus()
-    app5.table_insert(450, 250)
+
+    print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+    print(app1.finalResultList)
+
+    for count in range(32):
+        if sensArray[count].line_no == 400:
+            sensArray[count].L1 = app1.finalResultList[count - 16]
+            sensArray[count].L2 = app2.finalResultList[count - 16]
+            sensArray[count].L3 = app3.finalResultList[count - 16]
+
+        elif sensArray[count].line_no == 110:
+            sensArray[count].EXT = app4.finalResultList[count]
+            sensArray[count].OUT = app5.finalResultList[count]
+
+    print("------------------")
+    print(sensArray[11].L1)
+    print("------------------")
+    print(sensArray[11].L2)
+    print("-------------")
+    print(sensArray[11].L3)
+
+    # label1 = Label(root, text=sensArray[11].L1)
+    # label1.pack(ipadx=5, ipady=5)
+    #
+    # label2 = Label(root, text=sensArray[11].L2)
+    # label2.pack(ipadx=10, ipady=10)
+    #
+    # label3 = Label(root, text=sensArray[11].L3)
+    # label3.pack(ipadx=15, ipady=15)
+
+    tree = ttk.Treeview(root)
+    verscrlbar = ttk.Scrollbar(root, orient="vertical", command=tree.yview)
+    tree.configure(xscrollcommand=verscrlbar.set)
+
+    tree["columns"] = ("1", "2", "3", "4", "5", "6", "7", "8")
+    tree.column("#0", width=0, stretch=NO)
+    tree.column("1", width=125, minwidth=30, anchor='c')
+    tree.column("2", width=100, minwidth=30, anchor='c')
+    tree.column("3", width=100, minwidth=30, anchor='c')
+    tree.column("4", width=100, minwidth=30, anchor='c')
+    tree.column("5", width=100, minwidth=30, anchor='c')
+    tree.column("6", width=100, minwidth=30, anchor='c')
+    tree.column("7", width=100, minwidth=30, anchor='c')
+    tree.column("8", width=100, minwidth=30, anchor='c')
+
+    tree.heading("1", text="Time")
+    tree.heading("2", text="Line No")
+    tree.heading("3", text="Sensor No")
+    tree.heading("4", text="L1")
+    tree.heading("5", text="L2")
+    tree.heading("6", text="L3")
+    tree.heading("7", text="EXT")
+    tree.heading("8", text="OUT")
+    tree.place()
+
+    tree.tag_configure('high', foreground='red')
+    tree.tag_configure('low', foreground='black')
+
+    for y in range(32):
+        print(sensArray[y].line_no)
+
+    for l in range(16):
+        if sensArray[l].L1 or sensArray[l].L2 or sensArray[l].L3 > 30.0:
+            tree.insert(parent='', index='end', iid=l, text='', values=(
+                dt.datetime.now().strftime('%Y-%m-%d %X'), sensArray[l].line_no, sensArray[l].sens_no,
+                round(sensArray[l].L1, 4), round(sensArray[l].L2, 4), round(sensArray[l].L3, 4),
+                round(float(sensArray[l].EXT), 4), round(float(sensArray[l].OUT), 4)),
+                        tags=('high',))
+        else:
+            tree.insert(parent='', index='end', iid=l, text='', values=(
+                dt.datetime.now().strftime('%Y-%m-%d %X'), sensArray[l].line_no, sensArray[l].sens_no,
+                round(sensArray[l].L1, 4), round(sensArray[l].L2, 4), round(sensArray[l].L3, 4),
+                round(float(sensArray[l].EXT), 4), round(float(sensArray[l].OUT), 4)),
+                        tags=('low',))
+    for l in range(16, 32):
+        if sensArray[l].L1 or sensArray[l].L2 or sensArray[l].L3 > 30.0:
+            tree.insert(parent='', index='end', iid=l, text='', values=(
+                dt.datetime.now().strftime('%Y-%m-%d %X'), sensArray[l].line_no, sensArray[l].sens_no,
+                round(sensArray[l].L1, 4), round(sensArray[l].L2, 4), round(sensArray[l].L3, 4),
+                round(float(sensArray[l].EXT), 4), round(float(sensArray[l].OUT), 4)),
+                        tags=('high',))
+        else:
+            tree.insert(parent='', index='end', iid=l, text='', values=(
+                dt.datetime.now().strftime('%Y-%m-%d %X'), sensArray[l].line_no, sensArray[l].sens_no,
+                round(sensArray[l].L1, 4), round(sensArray[l].L2, 4), round(sensArray[l].L3, 4),
+                round(float(sensArray[l].EXT), 4), round(float(sensArray[l].OUT), 4)),
+                        tags=('low',))
+
+    tree.pack()
+
+    # app1.table_insert(50, 10)
+    # app2 = ModBus(2, 400, 9, 13)
+    # app2.connect_modbus()
+    # app2.table_insert(50, 250)
+    # app3 = ModBus(3, 400, 9, 13)
+    # app3.connect_modbus()
+    # app3.table_insert(50, 490)
+    # app4 = ModBus(7, 110, 5, 16)
+    # app4.connect_modbus()
+    # app4.table_insert(450, 10)
+    # app5 = ModBus(8, 110, 5, 16)
+    # app5.connect_modbus()
+    # app5.table_insert(450, 250)
     mainloop()
 
 

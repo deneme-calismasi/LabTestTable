@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter import *
 import pymongo
 import datetime as dt
+import csv
 
 root = tk.Tk()
 
@@ -109,6 +110,23 @@ class ModBus:
                     pass
         return res
 
+    def load_csv(self):
+        with open("new.csv") as myfile:
+            csvread = csv.reader(myfile, delimiter=',')
+
+            for row in csvread:
+                print('load row:', row)
+                self.tree.insert("", 'end', values=row)
+
+    def save_csv(self):
+        with open("new.csv", "w", newline='') as myfile:
+            csvwriter = csv.writer(myfile, delimiter=',')
+
+            for row_id in self.tree.get_children():
+                row = self.tree.item(row_id)['values']
+                print('save row:', row)
+                csvwriter.writerow(row)
+
     def drag_start(self, event):
         widget = event.widget
         widget.startX = event.x
@@ -158,6 +176,14 @@ class ModBus:
 
         self.tree.tag_configure('high', foreground='red')
         self.tree.tag_configure('low', foreground='black')
+
+        self.button_load = tk.Button(root, text='Load', command=self.load_csv)
+        self.button_load.place(x=x, y=y + 230)
+        self.button_save = tk.Button(root, text='Save', command=self.save_csv)
+        self.button_save.place(x=x, y=y + 260)
+
+        self.button_load.bind("<Button-1>", self.drag_start)
+        self.button_save.bind("<B1-Motion>", self.drag_motion)
 
         start_range = 0
         id_count = 1
@@ -220,16 +246,16 @@ def main():
     app1.table_insert(50, 10)
     app2 = ModBus(2, 400, 1, 16)
     app2.connect_modbus()
-    app2.table_insert(50, 250)
+    app2.table_insert(50, 280)
     app3 = ModBus(3, 400, 1, 16)
     app3.connect_modbus()
-    app3.table_insert(50, 490)
+    app3.table_insert(50, 550)
     app4 = ModBus(7, 110, 1, 16)
     app4.connect_modbus()
     app4.table_insert(450, 10)
     app5 = ModBus(8, 110, 1, 16)
     app5.connect_modbus()
-    app5.table_insert(450, 250)
+    app5.table_insert(450, 280)
     mainloop()
 
 
