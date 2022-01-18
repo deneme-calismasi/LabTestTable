@@ -95,7 +95,7 @@ class ModBus:
         lst = self.list_to_dict()
         myclient = pymongo.MongoClient("mongodb://localhost:27017/")
         mydb = myclient["Modbus_Database"]
-        mycol = mydb["collection6"]
+        mycol = mydb["collection7"]
 
         mycol.insert_many(lst)
 
