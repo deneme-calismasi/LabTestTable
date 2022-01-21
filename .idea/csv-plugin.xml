@@ -10,6 +10,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\Lab_Data_L1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Lab_Data_L2.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Lab_Data_L3.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\new.csv">
           <value>
             <Attribute>

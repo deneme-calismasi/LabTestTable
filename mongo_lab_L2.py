@@ -3,7 +3,7 @@ import pymongo
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["Modbus_Database"]
-mycol = mydb["collection7"]
+mycol = mydb["collection11"]
 
 # data = pd.DataFrame(mycol.find({}, {'_id': 0}))
 data = pd.DataFrame(
